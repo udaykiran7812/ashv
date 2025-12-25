@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ashv Event Registration</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h2 { color: #333; margin-bottom: 20px; }
+        
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; color: #666; font-size: 0.9rem; }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            border: none;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-pay {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            color: white;
+            transition: opacity 0.3s;
+        }
+
+        .gpay { background-color: #1f1f1f; } /* Dark theme for GPay */
+        .phonepe { background-color: #5f259f; } /* Purple for PhonePe */
+        .paytm { background-color: #00baf2; }
+        
+        .btn-pay:hover { opacity: 0.9; }
+
+        /* Sections */
+        #step-2, #success-msg { display: none; }
+        
+        .amount-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #28a745;
+            margin: 10px 0 20px 0;
+        }
+
+        .spinner {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Ashv Event 2024</h2>
+
+    <form id="step-1">
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" name="Name" id="name" required placeholder="Enter your name">
+        </div>
+        <div class="form-group">
+            <label>Roll Number</label>
+            <input type="text" name="Roll No" id="rollno" required placeholder="Ex: 21A91A0...">
+        </div>
+        <div class="form-group">
+            <label>Phone Number (Used for Payment)</label>
+            <input type="tel" name="Phone Number" id="phone" required placeholder="Ex: 9876543210" pattern="[0-9]{10}">
+        </div>
+        <button type="button" class="btn-primary" onclick="goToStep2()">Next</button>
+    </form>
+
+    <div id="step-2">
+        <p>Total Amount</p>
+        <div class="amount-display">₹600</div>
+        
+        <p style="font-size: 0.9rem; color: #555;">Tap below to pay via app:</p>
+        
+        <a href="upi://pay?pa=udaykiran7812@pingpay&pn=AshvEvent&am=600&tn=AshvFee&cu=INR" class="btn-pay gpay">
+            Pay with GPay / Any UPI
+        </a>
+        <a href="upi://pay?pa=udaykiran7812@pingpay&pn=AshvEvent&am=600&tn=AshvFee&cu=INR" class="btn-pay phonepe">
+            Pay with PhonePe
+        </a>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+        <form name="submit-to-google-sheet">
+            <div class="form-group">
+                <label><strong>Important:</strong> Enter UTR / Transaction ID</label>
+                <input type="text" name="UTR Number" required placeholder="Enter 12-digit UTR">
+                <input type="hidden" name="Name" id="hidden-name">
+                <input type="hidden" name="Roll No" id="hidden-roll">
+                <input type="hidden" name="Phone Number" id="hidden-phone">
+            </div>
+            <button type="submit" class="btn-primary">Submit Payment Details</button>
+            <div class="spinner"></div>
+        </form>
+    </div>
+
+    <div id="success-msg">
+        <h3 style="color: green;">Registration Successful!</h3>
+        <p>We have received your details. We will verify the payment and confirm shortly.</p>
+        <p>Take a screenshot of this page for safety.</p>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxgFiRwiL_c3DjjW4-li7IQ07wtiBMSyurUX8nbojAFh993fL1zb4O2F5tUHjycLqgI/exec'; // <--- PASTE YOUR URL HERE
+    const form = document.forms['submit-to-google-sheet'];
+    const spinner = document.querySelector('.spinner');
+
+    function goToStep2() {
+        const name = document.getElementById('name').value;
+        const roll = document.getElementById('rollno').value;
+        const phone = document.getElementById('phone').value;
+
+        if(name && roll && phone) {
+            // Transfer values to hidden fields
+            document.getElementById('hidden-name').value = name;
+            document.getElementById('hidden-roll').value = roll;
+            document.getElementById('hidden-phone').value = phone;
+
+            // Switch View
+            document.getElementById('step-1').style.display = 'none';
+            document.getElementById('step-2').style.display = 'block';
+        } else {
+            alert("Please fill all details first!");
+        }
+    }
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        spinner.style.display = 'block';
+        
+        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+            .then(response => {
+                document.getElementById('step-2').style.display = 'none';
+                document.getElementById('success-msg').style.display = 'block';
+            })
+            .catch(error => {
+                alert('Error!', error.message);
+                spinner.style.display = 'none';
+            });
+    });
+</script>
+
+</body>
+</html>
